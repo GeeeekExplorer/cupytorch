@@ -63,6 +63,15 @@ print(a.grad)
 print(b.grad)
 print(c.grad)
 print(d.grad)
+
+# tensor(18.889057, grad_fn=<MeanBackward>)
+# tensor([[2.  1.5]
+#         [2.  1.5]])
+# tensor([[0.  4.5]
+#         [1.  0.5]])
+# tensor([[0.       3.694528]
+#         [0.       3.694528]])
+# tensor([ 1. -1.])
 ```
 
 手写数字识别示例：
@@ -77,7 +86,7 @@ from cupytorch.utils.data import TensorDataset, DataLoader
 
 
 class Net(nn.Module):
-
+    
     def __init__(self, num_pixel: int, num_class: int):
         super().__init__()
         self.num_pixel = num_pixel
@@ -86,7 +95,7 @@ class Net(nn.Module):
         self.fc3 = nn.Linear(64, num_class)
         self.act = nn.ReLU()
         self.drop = nn.Dropout(0.1)
-
+    
     def forward(self, input: ct.Tensor) -> ct.Tensor:
         output = input.view(-1, self.num_pixel)
         output = self.drop(self.act(self.fc1(output)))
@@ -95,8 +104,8 @@ class Net(nn.Module):
 
 
 def load(path: Path):
-	# define how to load data as tensor
-	pass
+    # define how to load data as tensor
+    pass
 
 
 path = Path('../datasets/MNIST')
@@ -116,7 +125,7 @@ print(optimizer)
 print(criterion)
 
 for epoch in range(10):
-	losses = 0
+    losses = 0
     for step, (x, y) in enumerate(train_dl, 1):
         optimizer.zero_grad()
         z = model(x)
@@ -125,14 +134,20 @@ for epoch in range(10):
         optimizer.step()
         losses += loss.item()
         if step % 500 == 0:
-			losses /= 500
-			print(f'Epoch: {epoch}, Train Step: {step}, Train Loss: {losses:.6f}')
+            losses /= 500
+            print(f'Epoch: {epoch}, Train Step: {step}, Train Loss: {losses:.6f}')
             losses = 0
-	scheduler.step()
+    scheduler.step()
 ```
 
 `examples`文件夹中提供了两个完整示例：
 
 * 在[MNIST](http://yann.lecun.com/exdb/mnist/)数据集上使用MLP做手写数字分类
 * 在[NN5](http://www.neural-forecasting-competition.com/downloads/NN5/datasets/download.htm)数据集上使用LSTM做ATM机取款预测
+
+参考：
+
+* [PyTorch](https://github.com/pytorch/pytorch)
+* [minitorch](https://github.com/zhouzaida/minitorch)
+* [tinygrad](https://github.com/geohot/tinygrad)
 
