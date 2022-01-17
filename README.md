@@ -147,7 +147,7 @@ for epoch in range(10):
 
 参考：
 
-* [PyTorch](https://github.com/pytorch/pytorch)
+* [pytorch](https://github.com/pytorch/pytorch)
 * [minitorch](https://github.com/zhouzaida/minitorch)
 * [tinygrad](https://github.com/geohot/tinygrad)
 

@@ -1,5 +1,4 @@
 from math import prod
-from itertools import accumulate
 from typing import Union, Tuple, Sequence, Dict, Any, Optional
 
 import cupytorch as ct
@@ -82,9 +81,9 @@ class SliceBackward(Function):
         return self.single_helper(t.data[key], t)
 
     def backward(self, grad_output: Tensor) -> Tensor:
-        grad = ct.zeros_like(self.ctx['input'])
-        grad[self.ctx['key']] = grad_output
-        return grad
+        g = ct.zeros_like(self.ctx['input'])
+        g[self.ctx['key']] = grad_output
+        return g
 
 
 class AbsBackward(Function):
@@ -239,20 +238,21 @@ class MaxBackward(Function):
             return self.single_helper(values, t)
         self.ctx['dim'] = dim
         indices = t.data.argmax(dim)
+        self.ctx['indices'] = np.expand_dims(indices, dim)
         if keepdim:
-            indices = indices.reshape(*values.shape)
-        indices = ct.tensor(indices)
-        return self.single_helper(values, t), indices
+            indices = self.ctx['indices']
+        return self.single_helper(values, t), ct.tensor(indices)
 
     def backward(self, grad_output: Tensor) -> Tensor:
         if isinstance(self.ctx['output'], Tensor):
             mask = self.ctx['input'] == self.ctx['output']
             return mask / mask.sum() * grad_output
         elif isinstance(self.ctx['output'], tuple):
+            t = self.ctx['input']
             dim = self.ctx['dim']
-            g = ct.zeros_like(self.ctx['input'])
-            indices = tuple(slice(d) if i != dim else dim for i, d in enumerate(g.shape))
-            g[indices] = grad_output.reshape(g[indices].shape)
+            mask = np.indices(t.shape)[dim] == self.ctx['indices']
+            g = ct.zeros_like(t)
+            g[mask] = grad_output.view(-1)
             return g
 
 
@@ -264,20 +264,21 @@ class MinBackward(Function):
             return self.single_helper(values, t)
         self.ctx['dim'] = dim
         indices = t.data.argmin(dim)
+        self.ctx['indices'] = np.expand_dims(indices, dim)
         if keepdim:
-            indices = indices.reshape(*values.shape)
-        indices = ct.tensor(indices)
-        return self.single_helper(values, t), indices
+            indices = self.ctx['indices']
+        return self.single_helper(values, t), ct.tensor(indices)
 
     def backward(self, grad_output: Tensor) -> Tensor:
         if isinstance(self.ctx['output'], Tensor):
             mask = self.ctx['input'] == self.ctx['output']
             return mask / mask.sum() * grad_output
         elif isinstance(self.ctx['output'], tuple):
+            t = self.ctx['input']
             dim = self.ctx['dim']
-            g = ct.zeros_like(self.ctx['input'])
-            indices = tuple(slice(d) if i != dim else dim for i, d in enumerate(g.shape))
-            g[indices] = grad_output.reshape(g[indices].shape)
+            mask = np.indices(t.shape)[dim] == self.ctx['indices']
+            g = ct.zeros_like(t)
+            g[mask] = grad_output.view(-1)
             return g
 
 
@@ -310,9 +311,9 @@ class MaximumBackward(Function):
 
     def backward(self, grad_output: Tensor) -> Tuple[Optional[Tensor], Optional[Tensor]]:
         t1, t2 = self.ctx['inputs']
-        mask = (self.ctx['output'] == t1)
-        g1 = unbroadcast(mask * grad_output, t1) if t1.requires_grad else None
-        g2 = unbroadcast(~mask * grad_output, t1) if t2.requires_grad else None
+        mask = (self.ctx['output'] == t1).data
+        g1 = unbroadcast(ct.tensor(np.where(mask, grad_output.data, 0)), t1) if t1.requires_grad else None
+        g2 = unbroadcast(ct.tensor(np.where(~mask, grad_output.data, 0)), t2) if t2.requires_grad else None
         return g1, g2
 
 
@@ -323,9 +324,9 @@ class MinimumBackward(Function):
 
     def backward(self, grad_output: Tensor) -> Tuple[Optional[Tensor], Optional[Tensor]]:
         t1, t2 = self.ctx['inputs']
-        mask = (self.ctx['output'] == t1)
-        g1 = unbroadcast(mask * grad_output, t1) if t1.requires_grad else None
-        g2 = unbroadcast(~mask * grad_output, t1) if t2.requires_grad else None
+        mask = (self.ctx['output'] == t1).data
+        g1 = unbroadcast(ct.tensor(np.where(mask, grad_output.data, 0)), t1) if t1.requires_grad else None
+        g2 = unbroadcast(ct.tensor(np.where(~mask, grad_output.data, 0)), t2) if t2.requires_grad else None
         return g1, g2
 
 
@@ -338,4 +339,4 @@ class StackBackward(Function):
     def backward(self, grad_output: Tensor) -> Tuple[Optional[Tensor], ...]:
         dim = self.ctx['dim']
         return tuple(grad_output[tuple(slice(d) if i != dim else j for i, d in enumerate(grad_output.shape))]
-                for j in range(len(self.ctx['inputs'])))
+                     for j in range(len(self.ctx['inputs'])))

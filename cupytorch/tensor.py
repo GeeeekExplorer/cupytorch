@@ -119,6 +119,8 @@ class Tensor:
     def reshape(self, *shape) -> 'Tensor':
         return ViewBackward()(self, *shape)
 
+    view = reshape
+
     def item(self):
         assert prod(self.shape) == 1
         return self.data.item()
@@ -137,8 +139,6 @@ class Tensor:
         if isinstance(key, tuple):
             key = tuple(k.data if isinstance(k, Tensor) else k for k in key)
         self.data[key] = self.tensor(value).data
-
-    view = reshape
 
     def abs(self) -> 'Tensor':
         return AbsBackward()(self)
