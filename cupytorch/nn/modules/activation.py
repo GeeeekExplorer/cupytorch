@@ -31,7 +31,7 @@ class Tanh(Module):
 
 class Softmax(Module):
 
-    def __init__(self, dim: int):
+    def __init__(self, dim: int) -> None:
         super().__init__()
         self.dim = dim
 
@@ -43,7 +43,7 @@ class Softmax(Module):
 
 class LogSoftmax(Module):
 
-    def __init__(self, dim: int):
+    def __init__(self, dim: int) -> None:
         super().__init__()
         self.dim = dim
 

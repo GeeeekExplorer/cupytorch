@@ -3,7 +3,7 @@ from .optimizer import Optimizer
 
 class _LRScheduler(object):
 
-    def __init__(self, optimizer: Optimizer):
+    def __init__(self, optimizer: Optimizer) -> None:
         self.optimizer = optimizer
         self.last_epoch = -1
 
@@ -16,7 +16,7 @@ class _LRScheduler(object):
     def get_lr(self):
         raise NotImplementedError
 
-    def step(self):
+    def step(self) -> None:
         self.last_epoch += 1
         values = self.get_lr()
 
@@ -27,7 +27,7 @@ class _LRScheduler(object):
 
 class LambdaLR(_LRScheduler):
 
-    def __init__(self, optimizer, lr_lambda):
+    def __init__(self, optimizer, lr_lambda) -> None:
         super().__init__(optimizer)
         if not isinstance(lr_lambda, (list, tuple)):
             self.lr_lambdas = [lr_lambda] * len(optimizer.param_groups)
@@ -41,7 +41,7 @@ class LambdaLR(_LRScheduler):
 
 class StepLR(_LRScheduler):
 
-    def __init__(self, optimizer, step_size, gamma=0.1):
+    def __init__(self, optimizer, step_size, gamma=0.1) -> None:
         super().__init__(optimizer)
         self.step_size = step_size
         self.gamma = gamma

@@ -8,26 +8,33 @@ class Tensor:
     from numpy.typing import ArrayLike
     TensorLike = Union[ArrayLike, 'Tensor']
 
-    def __init__(self, data: ArrayLike, *, dtype=None, requires_grad=False, grad_fn=None):
+    def __init__(self, data: ArrayLike, *, dtype=None, requires_grad=False, grad_fn=None) -> None:
         if dtype is None:
-            dtype = str(np.array(data).dtype)
+            if isinstance(data, np.ndarray):
+                dtype = str(data.dtype)
+            else:
+                dtype = str(np.min_scalar_type(data))
             if 'float' in dtype:
                 dtype = 'float32'
+            elif 'int' in dtype:
+                dtype = 'int64'
+            elif 'bool' in dtype:
+                dtype = 'bool'
         assert dtype in ('float32', 'int64', 'bool'), f"cupytorch only supports float32, int64 and bool"
         self.data: np.ndarray = np.asarray(data, dtype)
-        assert not requires_grad or 'float' in self.dtype, "only tensors of floating point dtype can require gradients"
+        assert not requires_grad or 'float32' == self.dtype, "only tensors of floating point dtype can require gradients"
         self.grad: Optional[Tensor] = None
         self.grad_fn: Optional[Function] = grad_fn if requires_grad else None
         self.is_leaf = False
         self.requires_grad = requires_grad
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         s = '\n'.join(' ' * 7 + s if i else s for i, s in enumerate(str(self.data).split('\n')))
         return f"tensor({s}" + \
                (f", grad_fn=<{type(self.grad_fn).__name__}>" if self.grad_fn else "") + \
                (f", requires_grad={self.requires_grad}" if self.grad_fn is None and self.requires_grad else "") + ")"
 
-    def __hash__(self):  # because __eq__ definition
+    def __hash__(self) -> int:  # because of __eq__ definition
         return id(self)
 
     @property
@@ -92,7 +99,7 @@ class Tensor:
         return cls.randn(*input.shape, dtype=dtype, requires_grad=requires_grad)
 
     @classmethod
-    def uniform(cls, low=0, high=1, *size, dtype=None, requires_grad=True) -> 'Tensor':
+    def uniform(cls, low=0., high=1., *size, dtype=None, requires_grad=True) -> 'Tensor':
         return cls.tensor(np.random.uniform(low, high, size), dtype=dtype, requires_grad=requires_grad)
 
     @classmethod
@@ -107,7 +114,7 @@ class Tensor:
     def stack(cls, tensors: Sequence['Tensor'], dim=0):
         return StackBackward()(tensors, dim)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.data)
 
     def backward(self) -> None:

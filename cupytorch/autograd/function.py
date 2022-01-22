@@ -22,7 +22,7 @@ def unbroadcast(grad_input: Tensor, input: Tensor) -> Tensor:
 
 class Function:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.next_functions: Tuple[Optional[Function], ...] = ()
         self.ctx: Dict[str, Union[Tuple[Tensor, ...], Tensor, Any]] = {}
 

@@ -4,7 +4,7 @@ from .optimizer import Optimizer
 
 class SGD(Optimizer):
 
-    def __init__(self, params, lr, momentum=0, weight_decay=0):
+    def __init__(self, params, lr, momentum=0, weight_decay=0) -> None:
         if lr < 0.0:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if momentum < 0.0:
@@ -16,7 +16,7 @@ class SGD(Optimizer):
         super().__init__(params, defaults)
 
     @ct.no_grad()
-    def step(self):
+    def step(self) -> None:
         for group in self.param_groups:
             weight_decay = group['weight_decay']
             momentum = group['momentum']

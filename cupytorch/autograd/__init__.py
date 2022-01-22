@@ -7,7 +7,7 @@ from .grad_mode import no_grad, enable_grad
 
 
 @no_grad()
-def backward(t: Tensor, grad=None):
+def backward(t: Tensor, grad=None) -> None:
     from math import prod
     from collections import defaultdict, deque
     assert t.requires_grad, "tensor does not require grad and does not have a grad_fn"
@@ -43,7 +43,7 @@ def backward(t: Tensor, grad=None):
         inputs = (x.grad_fn.ctx['input'],) if 'input' in x.grad_fn.ctx else x.grad_fn.ctx['inputs']
         for y in inputs:
             if y.grad_fn:  # exclude leaf nodes
-                if d[y] == 0:  # never visit
+                if d[y] == 0:  # have not visited
                     q.append(y)
                 d[y] += 1
     t.grad = Tensor.ones_like(t) if grad is None else grad

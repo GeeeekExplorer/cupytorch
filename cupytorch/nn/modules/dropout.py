@@ -6,7 +6,7 @@ from .module import Module
 
 class Dropout(Module):
 
-    def __init__(self, p=0.1):
+    def __init__(self, p=0.1) -> None:
         super().__init__()
         self.p = p
 

@@ -4,7 +4,7 @@ from .optimizer import Optimizer
 
 class Adam(Optimizer):
 
-    def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8, weight_decay=0):
+    def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8, weight_decay=0) -> None:
         if lr < 0.0:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if eps < 0.0:
@@ -19,7 +19,7 @@ class Adam(Optimizer):
         super(Adam, self).__init__(params, defaults)
 
     @ct.no_grad()
-    def step(self):
+    def step(self) -> None:
         for group in self.param_groups:
             weight_decay = group['weight_decay']
             beta1, beta2 = group['betas']

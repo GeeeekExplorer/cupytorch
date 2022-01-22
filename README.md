@@ -44,7 +44,7 @@ CuPyTorch支持numpy和cupy两种计算后端，实现大量PyTorch常用功能�
 
 | Language | files | blank | comment | code |
 | :------: | :---: | :---: | :-----: | :--: |
-|  Python  |  22   |  353  |   27    | 992  |
+|  Python  |  22   |  353  |   27    | 1000  |
 
 自动微分示例：
 

@@ -8,7 +8,7 @@ from ..parameter import Parameter
 
 class Linear(Module):
 
-    def __init__(self, in_features: int, out_features: int, bias=True):
+    def __init__(self, in_features: int, out_features: int, bias=True) -> None:
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features

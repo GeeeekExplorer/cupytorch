@@ -8,17 +8,17 @@ from ..parameter import Parameter
 # simplify from https://github.com/pytorch/pytorch/blob/master/torch/nn/modules/module.py
 class Module:
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self.training = True
         self._parameters = OrderedDict()
         self._modules = OrderedDict()
 
-    def train(self):
+    def train(self) -> None:
         self.training = True
         for _, module in self._modules.items():
             module.train()
 
-    def eval(self):
+    def eval(self) -> None:
         self.training = True
         for _, module in self._modules.items():
             module.eval()
@@ -29,7 +29,7 @@ class Module:
     def forward(self, *inputs: Tensor, **kwargs) -> Any:
         raise NotImplementedError
 
-    def zero_grad(self):
+    def zero_grad(self) -> None:
         for p in self.parameters():
             p.grad = None
 
@@ -74,7 +74,7 @@ class Module:
         for name, module in self.named_modules():
             yield module
 
-    def named_modules(self, prefix=''):
+    def named_modules(self, prefix='') -> Iterator[Tuple[str, 'Module']]:
         yield prefix, self
         for name, module in self._modules.items():
             submodule_prefix = prefix + ('.' if prefix else '') + name
@@ -83,7 +83,7 @@ class Module:
     def extra_repr(self) -> str:
         return ''
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         extra_repr = self.extra_repr()
         extra_lines = extra_repr.split('\n') if extra_repr else []
 

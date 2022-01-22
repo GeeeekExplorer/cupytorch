@@ -6,7 +6,7 @@ from cupytorch.nn import Parameter
 # simplify from https://github.com/pytorch/pytorch/blob/master/torch/optim/optimizer.py
 class Optimizer:
 
-    def __init__(self, params, defaults):
+    def __init__(self, params, defaults) -> None:
         self.defaults = defaults
         self.state = defaultdict(dict)
         self.param_groups = []
@@ -19,16 +19,16 @@ class Optimizer:
         for param_group in param_groups:
             self.add_param_group(param_group)
 
-    def zero_grad(self):
+    def zero_grad(self) -> None:
         for group in self.param_groups:
             for p in group['params']:
                 if p.grad is not None:
                     p.grad = None
 
-    def step(self):
+    def step(self) -> None:
         raise NotImplementedError
 
-    def add_param_group(self, param_group):
+    def add_param_group(self, param_group) -> None:
         assert isinstance(param_group, dict), "param group must be a dict"
         param_group['params'] = list(param_group['params'])
 
@@ -40,7 +40,7 @@ class Optimizer:
 
         self.param_groups.append(param_group)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         format_string = self.__class__.__name__ + ' ('
         for i, group in enumerate(self.param_groups):
             format_string += '\n'

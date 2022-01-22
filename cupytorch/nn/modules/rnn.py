@@ -10,7 +10,7 @@ from .activation import Sigmoid, Tanh
 
 class LSTMCell(Module):
 
-    def __init__(self, input_size, hidden_size):
+    def __init__(self, input_size: int, hidden_size: int) -> None:
         super().__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -44,7 +44,7 @@ class LSTMCell(Module):
 
 class LSTM(Module):
 
-    def __init__(self, input_size: int, hidden_size: int):
+    def __init__(self, input_size: int, hidden_size: int) -> None:
         super().__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
